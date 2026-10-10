@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UploadStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Upload {
+  id             String       @id @default(cuid())
+  fileName       String
+  totalRows      Int
+  totalBatches   Int
+  doneBatches    Int          @default(0)
+  insertedRows   Int          @default(0)
+  duplicateRows  Int          @default(0)
+  invalidRows    Int          @default(0)
+  status         UploadStatus @default(QUEUED)
+  errors         Json         @default("[]")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Member {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  uploadId  String?
+  createdAt DateTime @default(now())
+
+  @@index([uploadId])
+}

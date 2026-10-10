@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f6f7f9;
+  --ink: #14202b;
+  --line: #d9dee4;
+  --accent: #0b6e69;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
