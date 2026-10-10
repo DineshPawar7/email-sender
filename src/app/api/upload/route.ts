@@ -46,12 +46,16 @@ export async function POST(req: Request) {
 
   // Step 2: Batches ko BullMQ me push
     if (batches.length) {
-      await importQueue.addBulk(
-        batches.map((rows, batchIndex) => ({
-          name: "import-batch",
-          data: { uploadId: upload.id, batchIndex, rows },
-        }))
-      );
+      const jobs = batches.map((rows, batchIndex) => ({
+        name: "import-batch",
+        data: { uploadId: upload.id, batchIndex, rows },
+      }));
+      await Promise.race([
+        importQueue.addBulk(jobs),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Redis queue timed out. Check REDIS_URL and Redis availability.")), 10000)
+        ),
+      ]);
     }
 
     return NextResponse.json({ uploadId: upload.id, totalRows: raw.length, batches: batches.length });
